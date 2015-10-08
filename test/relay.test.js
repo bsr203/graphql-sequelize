@@ -145,6 +145,11 @@ describe('relay', function () {
         name: {
           type: GraphQLString,
           resolve: () => 'Viewer!'
+        },
+        users: {
+          type: userConnection.connectionType,
+          args: connectionArgs,
+          resolve: resolver(User)
         }
       }),
       interfaces: [nodeInterface]
@@ -179,11 +184,11 @@ describe('relay', function () {
             },
             resolve: resolver(User)
           },
-          users: {
-            type: userConnection.connectionType,
-            args: connectionArgs,
-            resolve: resolver(User)
-          },
+          // users: {
+          //   type: userConnection.connectionType,
+          //   args: connectionArgs,
+          //   resolve: resolver(User)
+          // },
           project: {
             type: projectType,
             args: {
@@ -477,10 +482,13 @@ describe('relay', function () {
 
     return graphql(schema, `
       {
-        users {
-          edges {
-            node {
-              name
+        viewer {
+          name
+          users {
+            edges {
+              node {
+                name
+              }
             }
           }
         }
@@ -488,8 +496,11 @@ describe('relay', function () {
     `).then(function (result) {
       if (result.errors) throw new Error(result.errors[0].stack);
 
-      expect(result.data.users.edges.length).to.equal(users.length);
-      result.data.users.edges.forEach(function (edge) {
+      expect(result.data.viewer.name).to.equal('Viewer!');
+
+
+      expect(result.data.viewer.users.edges.length).to.equal(users.length);
+      result.data.viewer.users.edges.forEach(function (edge) {
         expect(edge.node.tasks.edges).to.have.length.above(0);
       });
 
