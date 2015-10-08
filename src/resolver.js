@@ -10,6 +10,8 @@ function inList(list, attribute) {
 }
 
 module.exports = function (target, options) {
+  //debugger;
+
   var resolver
     , targetAttributes
     , isModel = !!target.getTableName
@@ -24,7 +26,9 @@ module.exports = function (target, options) {
   if (options.before === undefined) options.before = (options) => options;
   if (options.after === undefined) options.after = (result) => result;
 
+
   resolver = function (source, args, info) {
+    console.log(association, source);
     if (association && source.get(association.as) !== undefined) {
       if (isConnection(info.returnType)) {
         return handleConnection(source[info.fieldName], args);
