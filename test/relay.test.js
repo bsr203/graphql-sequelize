@@ -180,15 +180,8 @@ describe('relay', function () {
             resolve: resolver(User)
           },
           users: {
-            type: new GraphQLList(userType),
-            args: {
-              limit: {
-                type: GraphQLInt
-              },
-              order: {
-                type: GraphQLString
-              }
-            },
+            type: userConnection.connectionType,
+            args: connectionArgs,
             resolve: resolver(User)
           },
           project: {
@@ -479,18 +472,15 @@ describe('relay', function () {
     });
   });
 
-  it('should resolve an array of objects containing connections', function () {
+  it.only('should resolve an array of objects containing connections', function () {
     var users = this.users;
 
     return graphql(schema, `
       {
         users {
-          name
-          tasks {
-            edges {
-              node {
-                name
-              }
+          edges {
+            node {
+              name
             }
           }
         }
@@ -498,9 +488,9 @@ describe('relay', function () {
     `).then(function (result) {
       if (result.errors) throw new Error(result.errors[0].stack);
 
-      expect(result.data.users.length).to.equal(users.length);
-      result.data.users.forEach(function (user) {
-        expect(user.tasks.edges).to.have.length.above(0);
+      expect(result.data.users.edges.length).to.equal(users.length);
+      result.data.users.edges.forEach(function (edge) {
+        expect(edge.node.tasks.edges).to.have.length.above(0);
       });
 
     });
